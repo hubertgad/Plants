@@ -1,0 +1,23 @@
+﻿@page "/chart"
+@using Plants.Shared
+@inject HttpClient Http
+
+<h1>Plant humidity on chart.</h1>
+
+@if (scores == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+
+}
+
+@code {
+    private Score[] scores;
+
+    protected override async Task OnInitializedAsync()
+    {
+        scores = await Http.GetFromJsonAsync<Score[]>("Score");
+    }
+}

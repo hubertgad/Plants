@@ -1,0 +1,39 @@
+﻿@page "/timetable"
+@using Plants.Shared
+@inject HttpClient Http
+
+<h1>Plant humidity in time table.</h1>
+
+@if (scores == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var score in scores)
+            {
+                <tr>
+                    <td>@score.TimeStamp.ToShortDateString()</td>
+                    <td>@score.Value</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Score[] scores;
+
+    protected override async Task OnInitializedAsync()
+    {
+        scores = await Http.GetFromJsonAsync<Score[]>("Score");
+    }
+}
