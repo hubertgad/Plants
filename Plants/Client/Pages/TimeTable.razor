@@ -21,7 +21,7 @@ else
             @foreach (var score in scores)
             {
                 <tr>
-                    <td>@score.TimeStamp.ToShortDateString()</td>
+                    <td>@score.TimeStamp.ToShortDateString() @score.TimeStamp.TimeOfDay</td>
                     <td>@score.Value</td>
                 </tr>
             }
@@ -29,11 +29,21 @@ else
     </table>
 }
 
+@exception
+
 @code {
     private Score[] scores;
+    string exception = "";
 
     protected override async Task OnInitializedAsync()
     {
-        scores = await Http.GetFromJsonAsync<Score[]>("Score");
+        try
+        {
+            scores = await Http.GetFromJsonAsync<Score[]>("Score");
+        }
+        catch (Exception e)
+        {
+            exception = e.ToString();
+        }
     }
 }

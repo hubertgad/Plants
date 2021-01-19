@@ -27,7 +27,7 @@ namespace Plants.Infrastructure.Data
             connection.Open();
             MySqlCommand cmd = new MySqlCommand("SELECT * FROM SCORES", connection);
 
-            using var reader = cmd.ExecuteReader();
+            using MySqlDataReader reader = cmd.ExecuteReader();
             while (reader.Read())
                 scores.Add(new Score 
                 { 
