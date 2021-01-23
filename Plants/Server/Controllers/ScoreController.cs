@@ -2,6 +2,7 @@
 using Plants.Infrastructure.Data;
 using Plants.Infrastructure.Models;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Plants.Server.Controllers
 {
@@ -19,7 +20,7 @@ namespace Plants.Server.Controllers
         [HttpGet]
         public IEnumerable<Score> Get()
         {
-            return _context.GetAllScores();
+            return _context.GetAllScores().OrderByDescending(q => q.TimeStamp);
         }
     }
 }
