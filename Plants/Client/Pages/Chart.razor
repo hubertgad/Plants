@@ -38,7 +38,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         scores = (await Http.GetFromJsonAsync<Score[]>("Score"))
-                    .Where(q => Math.Abs(q.TimeStamp.Subtract(DateTime.Now).TotalHours) < 24);
+                    .Where(q => Math.Abs(q.TimeStamp.Subtract(scores.LastOrDefault().TimeStamp).TotalHours) < 24);
 
         Date = new DataItem[scores.Count()];
 
