@@ -1,4 +1,37 @@
 ﻿@page "/"
+@using Plants.Shared
+@inject HttpClient Http
 
 <h1>Hello!</h1>
 <h2>Let's see how does the plant feel.</h2>
+
+<h2>@comment</h2>
+<h2>@comment2</h2>
+<h3>If last value from sensor is less than 300, your plant needs more water. Remember your plant lives.</h3>
+
+
+@exception
+
+@code {
+    private Score[] scores;
+    string exception = "";
+    int scoreNow;
+    string comment = "";
+    string comment2 = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            scores = await Http.GetFromJsonAsync<Score[]>("Score");
+            scoreNow = scores[0].Value;
+            if (scoreNow < 300) comment = "Your plant needs more water.";
+            if (scoreNow > 300) comment = "Your plant feels good, doesn't need more water.";
+            comment2 = "Last value from sensor is: " + scoreNow;
+        }
+        catch (Exception e)
+        {
+            exception = e.ToString();
+        }
+    }
+}
