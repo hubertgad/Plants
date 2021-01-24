@@ -1,25 +1,8 @@
 ﻿@page "/chart"
 @using Plants.Shared
-@using System.Globalization
 @inject HttpClient Http
 
-<h1>Plant humidity on chart.</h1>
-
-<div class="row">
-    <div class="col-md-12 col-sm-12 p-5">
-        <label>Smooth <RadzenCheckBox @bind-Value="@smooth" Name="smooth"></RadzenCheckBox></label>
-        <RadzenChart>
-            <RadzenLineSeries Smooth="@smooth" Data="@Date" CategoryProperty="Date" Title="2019" LineType="LineType.Dashed" ValueProperty="Revenue">
-                <RadzenMarkers MarkerType="MarkerType.Square" />
-            </RadzenLineSeries>
-            <RadzenCategoryAxis Padding="20" FormatString="{0:MMM}" />
-            <RadzenValueAxis Formatter="@FormatAsUSD">
-                <RadzenGridLines Visible="true" />
-                <RadzenAxisTitle Text="Revenue in USD" />
-            </RadzenValueAxis>
-        </RadzenChart>
-    </div>
-</div>
+<h1>Plant humidity on chart - last 24h.</h1>
 
 @if (scores == null)
 {
@@ -27,93 +10,51 @@
 }
 else
 {
-
+    <div class="row">
+        <div class="col-md-12 col-sm-12 p-5">
+            <label>Smooth <RadzenCheckBox @bind-Value="@smooth" Name="smooth"></RadzenCheckBox></label>
+            <RadzenChart>
+                <RadzenLineSeries Smooth="@smooth" Data="@Date" CategoryProperty="Date" Title="Humidities" LineType="LineType.Dashed" ValueProperty="Revenue">
+                    <RadzenMarkers MarkerType="MarkerType.Square" />
+                </RadzenLineSeries>
+                <RadzenCategoryAxis Padding="20" FormatString="{0:dd.MM HH:mm}" />
+                <RadzenValueAxis Formatter="@(value => value.ToString())">
+                    <RadzenGridLines Visible="true" />
+                    <RadzenAxisTitle Text="Humidity points" />
+                </RadzenValueAxis>
+            </RadzenChart>
+        </div>
+    </div>
 }
 
-@code {
+@code 
+{
     bool smooth = false;
+
+    DataItem[] Date;
+
+    private IEnumerable<Score> scores;
+
+    protected override async Task OnInitializedAsync()
+    {
+        scores = (await Http.GetFromJsonAsync<Score[]>("Score"))
+                    .Where(q => Math.Abs(q.TimeStamp.Subtract(DateTime.Now).TotalHours) < 24);
+
+        Date = new DataItem[scores.Count()];
+
+        for (int i = 0; i < Date.Length; i++)
+        {
+            Date[i] = new DataItem
+            {
+                Date = scores.ElementAt(i).TimeStamp,
+                Revenue = scores.ElementAt(i).Value
+            };
+        }
+    }
+
     class DataItem
     {
         public DateTime Date { get; set; }
         public double Revenue { get; set; }
-    }
-
-    string FormatAsUSD(object value)
-    {
-        return ((double)value).ToString("C0", CultureInfo.CreateSpecificCulture("en-US"));
-    }
-
-
-
-    DataItem[] Date = new DataItem[] {
-        new DataItem
-        {
-            Date = DateTime.Parse("2019-01-01"),
-            Revenue = 234000
-        },
-        new DataItem
-        {
-            Date = DateTime.Parse("2019-02-01"),
-            Revenue = 269000
-        },
-        new DataItem
-        {
-            Date = DateTime.Parse("2019-03-01"),
-            Revenue = 233000
-        },
-        new DataItem
-        {
-            Date = DateTime.Parse("2019-04-01"),
-            Revenue = 244000
-        },
-        new DataItem
-        {
-            Date = DateTime.Parse("2019-05-01"),
-            Revenue = 214000
-        },
-        new DataItem
-        {
-            Date = DateTime.Parse("2019-06-01"),
-            Revenue = 253000
-        },
-        new DataItem
-        {
-            Date = DateTime.Parse("2019-07-01"),
-            Revenue = 274000
-        },
-        new DataItem
-        {
-            Date = DateTime.Parse("2019-08-01"),
-            Revenue = 284000
-        },
-        new DataItem
-        {
-            Date = DateTime.Parse("2019-09-01"),
-            Revenue = 273000
-        },
-        new DataItem
-        {
-            Date = DateTime.Parse("2019-10-01"),
-            Revenue = 282000
-        },
-        new DataItem
-        {
-            Date = DateTime.Parse("2019-11-01"),
-            Revenue = 289000
-        },
-        new DataItem
-        {
-            Date = DateTime.Parse("2019-12-01"),
-            Revenue = 294000
-        }
-    };
-
-    //Data
-
-    private Score[] scores;
-
-    protected override async Task OnInitializedAsync()
-    {
-        scores = await Http.GetFromJsonAsync<Score[]>("Score");
     }
 }
